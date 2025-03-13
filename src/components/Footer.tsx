@@ -125,11 +125,11 @@ const Footer: React.FC<FooterProps> = ({
                 {showInstructions ? "(Hide) " : ""}How to Play
               </a>
             </li>
-            <li>
+            {/* <li>
               <a href="#" className="hover:underline cursor-pointer block" onClick={toggleChat}>
                 {showChat ? "(Hide) " : ""}Test Chat
               </a>
-            </li>
+            </li> */}
           </ul>
           <ul className="relative z-10">
             <li>

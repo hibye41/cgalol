@@ -37,7 +37,7 @@ interface EventSubPayload {
 
 interface FilteredChatProps {
   filteredMessages?: string[];
-  onNewMessage?: (message: string) => void;
+  onNewMessage?: (message: string) => boolean | void; // Return true to intercept/hide the message
 }
 
 const FilteredChat: React.FC<FilteredChatProps> = ({ 
@@ -154,6 +154,7 @@ const FilteredChat: React.FC<FilteredChatProps> = ({
   // Initialize WebSocket connection
   const initWebSocket = () => {
     if (!isAuthenticated || !user || !accessToken) {
+      console.log(`[${instanceId.current}] Not authenticated or missing credentials, skipping connection`);
       return;
     }
 
@@ -269,29 +270,57 @@ const FilteredChat: React.FC<FilteredChatProps> = ({
         const { message_id, chatter_user_name, message } = event;
         
         if (message_id && chatter_user_name && message) {
-          console.log(`[${instanceId.current}] Received chat message:`, message.text);
+          console.log(`[${instanceId.current}] Received chat message ID ${message_id}:`, message.text);
           
-          // Notify parent about new message
-          if (onNewMessage) {
-            onNewMessage(message.text);
+          // Check if we want to filter this message BEFORE displaying
+          let shouldHideMessage = false;
+          
+          // First check if it's in the filtered messages list
+          if (filteredMessages.includes(message.text)) {
+            console.log(`[${instanceId.current}] Message ID ${message_id} is in filteredMessages, hiding:`, message.text);
+            shouldHideMessage = true;
           }
           
-          setMessages(prev => {
-            // Check for duplicates by ID
-            if (prev.some(msg => msg.id === message_id)) {
-              return prev;
-            }
-            
-            return [
-              ...prev,
-              {
-                id: message_id,
-                username: chatter_user_name,
-                text: message.text,
-                isDeleted: false
+          // Then check with the callback if provided
+          if (!shouldHideMessage && onNewMessage) {
+            try {
+              console.log(`[${instanceId.current}] Checking if message should be intercepted:`, message.text);
+              const result = onNewMessage(message.text);
+              // If onNewMessage returns true, we should hide this message
+              if (result === true) {
+                shouldHideMessage = true;
+                console.log(`[${instanceId.current}] Message ID ${message_id} intercepted for game use:`, message.text);
+              } else {
+                console.log(`[${instanceId.current}] Message ID ${message_id} will be displayed in chat:`, message.text);
               }
-            ];
-          });
+            } catch (error) {
+              console.error(`[${instanceId.current}] Error in onNewMessage callback:`, error);
+            }
+          } else if (!onNewMessage) {
+            console.log(`[${instanceId.current}] No onNewMessage handler provided`);
+          }
+          
+          // Only add to visible messages if we're not hiding it
+          if (!shouldHideMessage) {
+            // Double check for duplicates by ID
+            setMessages(prev => {
+              if (prev.some(msg => msg.id === message_id)) {
+                console.log(`[${instanceId.current}] Preventing duplicate message ID ${message_id}`);
+                return prev;
+              }
+              
+              console.log(`[${instanceId.current}] Adding message ID ${message_id} to visible chat`);
+              return [
+                ...prev,
+                {
+                  id: message_id,
+                  username: chatter_user_name,
+                  text: message.text,
+                  isDeleted: false
+                }
+              ];
+            });
+          }
         }
         break;
       }
@@ -324,8 +353,10 @@ const FilteredChat: React.FC<FilteredChatProps> = ({
     );
   }
 
-  // Filter messages that shouldn't be displayed
-  const displayMessages = messages.filter(msg => !filteredMessages.includes(msg.text));
+  // Apply any additional filtered messages
+  const displayMessages = messages.filter(msg => 
+    !filteredMessages.includes(msg.text)
+  );
 
   return (
     <div className="w-full h-full flex flex-col">

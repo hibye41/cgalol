@@ -8,13 +8,14 @@ const Instructions: React.FC = () => {
         {/* <span>{"We're born 🌞 to "}</span> */}
         <Typewriter
           text={[
-            "> gathering phase\n" +
-            " - allow chatters to submit messages to trick you\n" +
-            " - gamble for lives in blackjack while you wait\n" +
-            "> guessing phase\n" +
-            " - guess if a message is from a chatter or a chatbot\n" +
-            " - if you guess wrong, you lose a life\n" +
-            " - wager some subs on an honor system"
+            "> chat or chatbot?\n" +
+            " - we grab messages from your chat at random\n" +
+            " - you get shown one of those real messages,\n" +
+            " - or a chatbot message that we made up\n" +
+            " - can you tell the difference?\n" +
+            "> chatters \n" +
+            " - trick your streamer\n",
+            " > also there's a blackjack"
           ]}
           speed={70}
           className="text-green-500"
