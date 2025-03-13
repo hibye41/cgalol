@@ -289,7 +289,7 @@ const Blackjack: React.FC = () => {
   }, []);
 
   // Render a card component
-  const renderCard = (card: Card, index: number) => {
+  const renderCard = (card: Card) => {
     if (card.hidden) {
       return (
         <div key={card.id} className="card hidden-card">

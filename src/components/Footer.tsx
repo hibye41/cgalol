@@ -25,20 +25,6 @@ const Footer: React.FC<FooterProps> = ({
 }) => {
   const { isAuthenticated, user, login } = useTwitchAuth();
 
-  const toggleChat = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setShowChat(!showChat);
-    if (showInstructions) {
-      setShowInstructions(false);
-    }
-    if (showBlackjack) {
-      setShowBlackjack(false);
-    }
-    if (showChatGame) {
-      setShowChatGame(false);
-    }
-  };
-
   const toggleInstructions = () => {
     setShowInstructions(!showInstructions);
     if (showChat) {
@@ -99,32 +85,48 @@ const Footer: React.FC<FooterProps> = ({
             {isAuthenticated ? (
               <>
                 <li>
-                  <a href="#" className="hover:underline cursor-pointer block" onClick={toggleBlackjack}>
-                    {showBlackjack ? "(Hide) " : ""}Play Blackjack
-                  </a>
-                </li>
-                <li>
                   <a href="#" className="hover:underline cursor-pointer block" onClick={toggleChatGame}>
                     {showChatGame ? "(Hide) " : ""}Chat or Chatbot?
                   </a>
                 </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:underline cursor-pointer block"
+                    onClick={toggleInstructions}
+                  >
+                    {showInstructions ? "(Hide) " : ""}How to Play
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:underline cursor-pointer block" onClick={toggleBlackjack}>
+                    {showBlackjack ? "(Hide) " : ""}Play Blackjack
+                  </a>
+                </li>
               </>
             ) : (
-              <li>
-                <a href="#" className="hover:underline cursor-pointer block" onClick={handleLoginClick}>
-                  Log In with Twitch
-                </a>
-              </li>
+              <>
+                <li>
+                  <a href="#" className="hover:underline cursor-pointer block" onClick={handleLoginClick}>
+                    Log In with Twitch
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:underline cursor-pointer block"
+                    onClick={toggleInstructions}
+                  >
+                    {showInstructions ? "(Hide) " : ""}How to Play
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:underline cursor-pointer block" onClick={toggleBlackjack}>
+                    {showBlackjack ? "(Hide) " : ""}Play Blackjack
+                  </a>
+                </li>
+              </>
             )}
-            <li>
-              <a
-                href="#"
-                className="hover:underline cursor-pointer block"
-                onClick={toggleInstructions}
-              >
-                {showInstructions ? "(Hide) " : ""}How to Play
-              </a>
-            </li>
             {/* <li>
               <a href="#" className="hover:underline cursor-pointer block" onClick={toggleChat}>
                 {showChat ? "(Hide) " : ""}Test Chat

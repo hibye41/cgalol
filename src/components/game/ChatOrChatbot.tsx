@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, createContext, useCallback } from 'react';
 import { useTwitchAuth } from '../../hooks/use-twitch-auth';
 import FilteredChat from '../../components/FilteredChat';
+import { AIMessage, AI_MESSAGES } from './messages';
 
 // Context for sharing hidden messages between components
 export const HiddenMessagesContext = createContext<{
@@ -39,13 +40,6 @@ export const HiddenMessagesProvider: React.FC<{children: React.ReactNode}> = ({ 
   );
 };
 
-// AI-generated messages with usage tracking
-interface AIMessage {
-  id: string;
-  text: string;
-  usedCount: number;
-}
-
 // Game round data
 interface GameRound {
   message: string;
@@ -64,29 +58,6 @@ let CURRENT_QUESTION: {
   isLocked: boolean; // Whether this question is currently locked
 } | null = null;
 
-const AI_MESSAGES: AIMessage[] = [
-  { id: 'ai1', text: "Have you tried turning it off and on again?", usedCount: 0 },
-  { id: 'ai2', text: "I can't believe they're adding another battle royale game to the market", usedCount: 0 },
-  { id: 'ai3', text: "This stream is so entertaining, I've been watching for hours!", usedCount: 0 },
-  { id: 'ai4', text: "The new patch completely ruined my favorite character", usedCount: 0 },
-  { id: 'ai5', text: "Does anyone know when the next big gaming event is?", usedCount: 0 },
-  { id: 'ai6', text: "I think the streamer needs to adjust their audio settings", usedCount: 0 },
-  { id: 'ai7', text: "That was an amazing play! How did you manage to pull that off?", usedCount: 0 },
-  { id: 'ai8', text: "I've been a subscriber for three months now and I love the content!", usedCount: 0 },
-  { id: 'ai9', text: "This game has the best graphics I've seen all year", usedCount: 0 },
-  { id: 'ai10', text: "Can we see your gaming setup? I'm curious what peripherals you use", usedCount: 0 },
-  { id: 'ai11', text: "I tried that strategy yesterday and it completely failed for me", usedCount: 0 },
-  { id: 'ai12', text: "The loading times in this game are ridiculous", usedCount: 0 },
-  { id: 'ai13', text: "What's your opinion on the controversial change in the latest update?", usedCount: 0 },
-  { id: 'ai14', text: "I just got here, what did I miss?", usedCount: 0 },
-  { id: 'ai15', text: "My internet keeps dropping today, so frustrating", usedCount: 0 },
-  { id: 'ai16', text: "Do you have any recommendations for a good gaming chair?", usedCount: 0 },
-  { id: 'ai17', text: "That was so unlucky! You should have won that match", usedCount: 0 },
-  { id: 'ai18', text: "I can't understand why people are hating on this game, it's fantastic", usedCount: 0 },
-  { id: 'ai19', text: "What's your favorite game of all time?", usedCount: 0 },
-  { id: 'ai20', text: "The developers need to fix the servers ASAP", usedCount: 0 }
-];
-
 // Function to explicitly lock the current question to prevent any changes
 const lockCurrentQuestion = (instanceId: string) => {
   if (CURRENT_QUESTION) {
@@ -97,25 +68,27 @@ const lockCurrentQuestion = (instanceId: string) => {
 };
 
 // Function to check if we can modify the current question
-const canModifyQuestion = (instanceId: string) => {
-  if (!CURRENT_QUESTION) return true;
+const canModifyQuestion = () => {
+  // if (!CURRENT_QUESTION) return true;
   
-  // If question is locked, check how long it's been locked
-  if (CURRENT_QUESTION.isLocked) {
-    const lockDuration = Date.now() - CURRENT_QUESTION.lockedAt;
+  // // If question is locked, check how long it's been locked
+  // if (CURRENT_QUESTION.isLocked) {
+  //   const lockDuration = Date.now() - CURRENT_QUESTION.lockedAt;
     
-    // Only allow modifications after 30 seconds of locking (our max round time)
-    // This is a safety mechanism to prevent permanent locking
-    if (lockDuration < 30000) {
-      console.log(`[${instanceId}] Cannot modify question - locked for ${lockDuration}ms`);
-      return false;
-    } else {
-      console.log(`[${instanceId}] Lock expired after ${lockDuration}ms - allowing modification`);
-      return true;
-    }
-  }
+  //   // Only allow modifications after 30 seconds of locking (our max round time)
+  //   // This is a safety mechanism to prevent permanent locking
+  //   if (lockDuration < 30000) {
+  //     console.log(`[${instanceId}] Cannot modify question - locked for ${lockDuration}ms`);
+  //     return false;
+  //   } else {
+  //     console.log(`[${instanceId}] Lock expired after ${lockDuration}ms - allowing modification`);
+  //     return true;
+  //   }
+  // }
+
+  return true
   
-  return !CURRENT_QUESTION.isLocked;
+  // return !CURRENT_QUESTION.isLocked;
 };
 
 const ChatOrChatbot: React.FC = () => {
@@ -231,7 +204,7 @@ const ChatOrChatbot: React.FC = () => {
     }
     
     // Check if we can modify the current question (locking mechanism)
-    if (!canModifyQuestion(gameInstanceId.current)) {
+    if (!canModifyQuestion()) {
       console.log(`[${gameInstanceId.current}] Cannot start new round - current question is locked`);
       return;
     }
@@ -317,52 +290,62 @@ const ChatOrChatbot: React.FC = () => {
 
   // Function to handle player's answer
   const handleAnswer = (guessIsAI: boolean) => {
-    // We need to have a current round and question
-    if (!currentRound || currentRound.answered || !CURRENT_QUESTION) return;
-    
-    // Always use the immutable question, not the state
-    const isCorrect = guessIsAI === CURRENT_QUESTION.isAI;
-    console.log(`[${gameInstanceId.current}] Player guessed ${guessIsAI ? 'AI' : 'Human'}, actual: ${CURRENT_QUESTION.isAI ? 'AI' : 'Human'}`);
-    
-    // Update score
-    if (isCorrect) {
-      setScore(prev => ({ ...prev, correct: prev.correct + 1 }));
-    } else {
-      setScore(prev => ({ ...prev, incorrect: prev.incorrect + 1 }));
-    }
-    
-    // Update current round
-    setCurrentRound(prev => prev ? {
-      ...prev,
-      message: CURRENT_QUESTION!.message, // Always use immutable question
-      isAI: CURRENT_QUESTION!.isAI,       // Always use immutable question
-      answered: true,
-      correct: isCorrect
-    } : null);
-    
-    setGameStatus('result');
-    
-    // Clear any existing timer
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    
-    // Clear the references
-    currentMessageRef.current = null;
-    
-    // Set timer for next round
-    timerRef.current = setTimeout(() => {
-      // Explicitly unlock the question
-      if (CURRENT_QUESTION) {
-        CURRENT_QUESTION.isLocked = false;
-        console.log(`[${gameInstanceId.current}] Unlocking question before setting to null`);
-      }
-      
-      CURRENT_QUESTION = null; // Reset immutable question for next round
-      startNewRound();
-    }, 5000);
-  };
+		// We need to have a current round and question
+		if (!currentRound || currentRound.answered || !CURRENT_QUESTION) return;
+
+		// Always use the immutable question, not the state
+		const isCorrect = guessIsAI === CURRENT_QUESTION.isAI;
+		console.log(
+			`[${gameInstanceId.current}] Player guessed ${
+				guessIsAI ? "AI" : "Human"
+			}, actual: ${CURRENT_QUESTION.isAI ? "AI" : "Human"}`
+		);
+
+		// Update score
+		if (isCorrect) {
+			setScore((prev) => ({ ...prev, correct: prev.correct + 1 }));
+		} else {
+			setScore((prev) => ({ ...prev, incorrect: prev.incorrect + 1 }));
+		}
+
+		// Update current round
+		setCurrentRound((prev) =>
+			prev
+				? {
+						...prev,
+						message: CURRENT_QUESTION!.message, // Always use immutable question
+						isAI: CURRENT_QUESTION!.isAI, // Always use immutable question
+						answered: true,
+						correct: isCorrect,
+				  }
+				: null
+		);
+
+		setGameStatus("result");
+
+		// Clear any existing timer
+		if (timerRef.current) {
+			clearTimeout(timerRef.current);
+			timerRef.current = null;
+		}
+
+		// Clear the references
+		currentMessageRef.current = null;
+
+		// Set timer for next round
+		// timerRef.current = setTimeout(() => {
+		//   // Explicitly unlock the question
+		//   if (CURRENT_QUESTION) {
+		//     CURRENT_QUESTION.isLocked = false;
+		//     console.log(`[${gameInstanceId.current}] Unlocking question before setting to null`);
+		//   }
+
+		//   CURRENT_QUESTION = null; // Reset immutable question for next round
+		//   startNewRound();
+		// }, 5000);
+
+		  // startNewRound();
+	};
 
   // Decide whether to show or hide an incoming chat message
   const processNewChatMessage = (message: string) => {
@@ -564,7 +547,7 @@ const ChatOrChatbot: React.FC = () => {
         <div className="h-[calc(100%-2rem)]">
           <FilteredChat 
             onNewMessage={(msg) => processNewChatMessage(msg)}
-            filteredMessages={CURRENT_QUESTION ? [CURRENT_QUESTION.message] : []} // Filter out the immutable question
+            // filteredMessages={CURRENT_QUESTION ? [CURRENT_QUESTION.message] : []} // Filter out the immutable question
           />
         </div>
       </div>
@@ -630,15 +613,15 @@ const ChatOrChatbot: React.FC = () => {
                 This message was from {currentRound.isAI ? 'an AI chatbot' : 'a real person'}
               </p>
               
-              <p className="text-sm text-gray-400">Next round in a few seconds...</p>
+              <button className="text-sm text-gray-400 cursor-pointer hover:underline" onClick={() => startNewRound()}>Next round</button>
             </div>
           )}
         </div>
         
         {/* Hidden message stats (for debugging) */}
-        <div className="mt-4 text-xs text-gray-500">
+        {/* <div className="mt-4 text-xs text-gray-500">
           Hidden messages available: {hiddenMessages.length}
-        </div>
+        </div> */}
       </div>
     </div>
   );

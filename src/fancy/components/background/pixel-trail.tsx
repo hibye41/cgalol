@@ -21,7 +21,8 @@ const PixelTrail: React.FC<PixelTrailProps> = ({
   pixelClassName,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
-  const dimensions = useDimensions(containerRef)
+  // Fix the type issue by asserting containerRef as RefObject<HTMLElement>
+  const dimensions = useDimensions(containerRef as React.RefObject<HTMLElement>)
   const trailId = useRef(uuidv4())
 
   const handleMouseMove = useCallback(

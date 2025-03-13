@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState, useRef } from 'react';
 import { useTwitchAuth } from '../hooks/use-twitch-auth';
-import { TWITCH_CLIENT_ID } from '../lib/twitch-config';
 
 // Keep track of active connections globally to prevent duplicates
-let activeConnection: {
+const activeConnection: {
   socket: WebSocket | null;
   sessionId: string | null;
   userId: string | null;
@@ -47,7 +47,7 @@ const FilteredChat: React.FC<FilteredChatProps> = ({
   const { isAuthenticated, user, accessToken } = useTwitchAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [connected, setConnected] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [, setSessionId] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const instanceId = useRef(Math.random().toString(36).substring(2, 9));
@@ -211,48 +211,48 @@ const FilteredChat: React.FC<FilteredChatProps> = ({
       console.log(`[${instanceId.current}] Subscribing to chat events for user:`, userId);
       
       // Subscribe to chat messages
-      await fetch('https://api.twitch.tv/helix/eventsub/subscriptions', {
-        method: 'POST',
-        headers: {
-          'Client-ID': TWITCH_CLIENT_ID,
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          type: 'channel.chat.message',
-          version: '1',
-          condition: {
-            broadcaster_user_id: userId,
-            user_id: userId
-          },
-          transport: {
-            method: 'websocket',
-            session_id: sessionId
-          }
-        })
-      });
+      await fetch("https://api.twitch.tv/helix/eventsub/subscriptions", {
+				method: "POST",
+				headers: {
+					"Client-ID": process.env.VITE_TWITCH_CLIENT_ID as string,
+					Authorization: `Bearer ${accessToken}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					type: "channel.chat.message",
+					version: "1",
+					condition: {
+						broadcaster_user_id: userId,
+						user_id: userId,
+					},
+					transport: {
+						method: "websocket",
+						session_id: sessionId,
+					},
+				}),
+			});
 
       // Subscribe to message deletions
-      await fetch('https://api.twitch.tv/helix/eventsub/subscriptions', {
-        method: 'POST',
-        headers: {
-          'Client-ID': TWITCH_CLIENT_ID,
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          type: 'channel.chat.message_delete',
-          version: '1',
-          condition: {
-            broadcaster_user_id: userId,
-            user_id: userId
-          },
-          transport: {
-            method: 'websocket',
-            session_id: sessionId
-          }
-        })
-      });
+      await fetch("https://api.twitch.tv/helix/eventsub/subscriptions", {
+				method: "POST",
+				headers: {
+					"Client-ID": process.env.VITE_TWITCH_CLIENT_ID as string,
+					Authorization: `Bearer ${accessToken}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					type: "channel.chat.message_delete",
+					version: "1",
+					condition: {
+						broadcaster_user_id: userId,
+						user_id: userId,
+					},
+					transport: {
+						method: "websocket",
+						session_id: sessionId,
+					},
+				}),
+			});
 
       console.log(`[${instanceId.current}] Successfully subscribed to chat events`);
       activeConnection.subscribed = true;
@@ -369,7 +369,7 @@ const FilteredChat: React.FC<FilteredChatProps> = ({
           <div className="text-gray-500 text-sm">No messages yet. Start chatting in your Twitch channel!</div>
         )}
         
-        {displayMessages.map((msg, index) => (
+        {displayMessages.map((msg) => (
           <div 
             key={msg.id} 
             className={`mb-1 text-sm ${msg.isDeleted ? 'text-gray-500 line-through' : 'text-white'}`}
