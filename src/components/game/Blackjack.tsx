@@ -324,7 +324,7 @@ const Blackjack: React.FC = () => {
         <div className="mb-8">
           <p className="text-sm mb-1">Dealer: {gamePhase !== 'initial' && gamePhase !== 'playerTurn' ? calculateHandValue(dealerHand) : '?'}</p>
           <div className="flex gap-2 flex-wrap">
-            {dealerHand.map((card, index) => renderCard(card, index))}
+            {dealerHand.map((card) => renderCard(card))}
           </div>
         </div>
         
@@ -332,7 +332,7 @@ const Blackjack: React.FC = () => {
         <div>
           <p className="text-sm mb-1">Player: {calculateHandValue(playerHand)}</p>
           <div className="flex gap-2 flex-wrap">
-            {playerHand.map((card, index) => renderCard(card, index))}
+            {playerHand.map((card) => renderCard(card))}
           </div>
         </div>
         
