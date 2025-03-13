@@ -1,16 +1,19 @@
 import { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+// import reactLogo from './assets/react.svg'
+// import viteLogo from '/vite.svg'
 import './App.css'
 import PixelTrail from './fancy/components/background/pixel-trail'
 import PixelateSvgFilter from './fancy/components/filter/pixelate-svg-filter'
 import { useMousePosition } from './hooks/use-mouse-position'
 import Typewriter from './fancy/components/text/typewriter'
+import { useTwitchAuth } from './hooks/use-twitch-auth'
 
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mousePosition = useMousePosition(containerRef);
   const pixelSize = Math.min(Math.max(mousePosition.x / 30, 1), 24);
   const [showInstructions, setShowInstructions] = useState(false);
+  const { isAuthenticated, user, login } = useTwitchAuth();
 
   return (
 		<div
@@ -89,9 +92,9 @@ function App() {
 						<div className="absolute inset-0 pointer-events-none"></div>
 						<ul className="relative z-10">
 							<li>
-								<Link to="/game" className="hover:underline cursor-pointer block">
-									Play Game
-								</Link>
+								<a href="#" className="hover:underline cursor-pointer block" onClick={(e) => { e.preventDefault(); login(); }}>
+									{isAuthenticated ? "Start a Game" : "Log In with Twitch"}
+								</a>
 							</li>
 							<li>
 								<a
@@ -121,7 +124,7 @@ function App() {
 							</li>
 							<li>
 								<a href="#" className="hover:underline cursor-pointer block">
-									aga
+									{isAuthenticated && user ? user.display_name : "aga"}
 								</a>
 							</li>
 						</ul>
