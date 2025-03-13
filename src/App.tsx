@@ -8,6 +8,7 @@ import BaseContent from './components/BaseContent'
 import Instructions from './components/Instructions'
 import TestChat from './components/TestChat'
 import Footer from './components/Footer'
+import Blackjack from './components/game/Blackjack'
 
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -15,6 +16,7 @@ function App() {
   const pixelSize = Math.min(Math.max(mousePosition.x / 30, 1), 24);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [showBlackjack, setShowBlackjack] = useState(false);
 
   return (
 		<div
@@ -32,6 +34,8 @@ function App() {
 							<TestChat />
 						</div>
 					</div>
+				) : showBlackjack ? (
+					<Blackjack />
 				) : (
 					<BaseContent />
 				)}
@@ -42,6 +46,8 @@ function App() {
 				setShowInstructions={setShowInstructions}
 				showChat={showChat}
 				setShowChat={setShowChat}
+				showBlackjack={showBlackjack}
+				setShowBlackjack={setShowBlackjack}
 			/>
 		</div>
 	);

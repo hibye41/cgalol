@@ -7,13 +7,17 @@ interface FooterProps {
   setShowInstructions: (show: boolean) => void;
   showChat: boolean;
   setShowChat: (show: boolean) => void;
+  showBlackjack: boolean;
+  setShowBlackjack: (show: boolean) => void;
 }
 
 const Footer: React.FC<FooterProps> = ({ 
   showInstructions, 
   setShowInstructions, 
   showChat, 
-  setShowChat 
+  setShowChat,
+  showBlackjack,
+  setShowBlackjack
 }) => {
   const { isAuthenticated, user, login } = useTwitchAuth();
 
@@ -23,10 +27,27 @@ const Footer: React.FC<FooterProps> = ({
     if (showInstructions) {
       setShowInstructions(false);
     }
+    if (showBlackjack) {
+      setShowBlackjack(false);
+    }
   };
 
   const toggleInstructions = () => {
     setShowInstructions(!showInstructions);
+    if (showChat) {
+      setShowChat(false);
+    }
+    if (showBlackjack) {
+      setShowBlackjack(false);
+    }
+  };
+
+  const toggleBlackjack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowBlackjack(!showBlackjack);
+    if (showInstructions) {
+      setShowInstructions(false);
+    }
     if (showChat) {
       setShowChat(false);
     }
@@ -44,8 +65,8 @@ const Footer: React.FC<FooterProps> = ({
           <div className="absolute inset-0 pointer-events-none"></div>
           <ul className="relative z-10">
             <li>
-              <a href="#" className="hover:underline cursor-pointer block" onClick={(e) => { e.preventDefault(); login(); }}>
-                {isAuthenticated ? "Start a Game" : "Log In with Twitch"}
+              <a href="#" className="hover:underline cursor-pointer block" onClick={toggleBlackjack}>
+                {showBlackjack ? "(Hide) " : ""}Play Blackjack
               </a>
             </li>
             <li>
@@ -65,8 +86,8 @@ const Footer: React.FC<FooterProps> = ({
           </ul>
           <ul className="relative z-10">
             <li>
-              <a href="#" className="hover:underline cursor-pointer block">
-                aga
+              <a href="#" className="hover:underline cursor-pointer block" onClick={(e) => { e.preventDefault(); login(); }}>
+                {isAuthenticated ? user?.display_name : "Login with Twitch"}
               </a>
             </li>
             <li>
@@ -76,7 +97,7 @@ const Footer: React.FC<FooterProps> = ({
             </li>
             <li>
               <a href="#" className="hover:underline cursor-pointer block">
-                {isAuthenticated && user ? user.display_name : "aga"}
+                aga
               </a>
             </li>
           </ul>
