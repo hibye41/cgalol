@@ -5,10 +5,32 @@ import { useTwitchAuth } from '../hooks/use-twitch-auth';
 interface FooterProps {
   showInstructions: boolean;
   setShowInstructions: (show: boolean) => void;
+  showChat: boolean;
+  setShowChat: (show: boolean) => void;
 }
 
-const Footer: React.FC<FooterProps> = ({ showInstructions, setShowInstructions }) => {
+const Footer: React.FC<FooterProps> = ({ 
+  showInstructions, 
+  setShowInstructions, 
+  showChat, 
+  setShowChat 
+}) => {
   const { isAuthenticated, user, login } = useTwitchAuth();
+
+  const toggleChat = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowChat(!showChat);
+    if (showInstructions) {
+      setShowInstructions(false);
+    }
+  };
+
+  const toggleInstructions = () => {
+    setShowInstructions(!showInstructions);
+    if (showChat) {
+      setShowChat(false);
+    }
+  };
 
   return (
     <div className="sticky z-0 bottom-0 left-0 w-full h-80 bg-white flex justify-center items-center font-mono">
@@ -30,14 +52,14 @@ const Footer: React.FC<FooterProps> = ({ showInstructions, setShowInstructions }
               <a
                 href="#"
                 className="hover:underline cursor-pointer block"
-                onClick={() => setShowInstructions(!showInstructions)}
+                onClick={toggleInstructions}
               >
                 {showInstructions ? "(Hide) " : ""}How to Play
               </a>
             </li>
             <li>
-              <a href="#" className="hover:underline cursor-pointer block">
-                aga
+              <a href="#" className="hover:underline cursor-pointer block" onClick={toggleChat}>
+                {showChat ? "(Hide) " : ""}Test Chat
               </a>
             </li>
           </ul>
