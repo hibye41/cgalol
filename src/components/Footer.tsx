@@ -9,6 +9,8 @@ interface FooterProps {
   setShowChat: (show: boolean) => void;
   showBlackjack: boolean;
   setShowBlackjack: (show: boolean) => void;
+  showChatGame: boolean;
+  setShowChatGame: (show: boolean) => void;
 }
 
 const Footer: React.FC<FooterProps> = ({ 
@@ -17,7 +19,9 @@ const Footer: React.FC<FooterProps> = ({
   showChat, 
   setShowChat,
   showBlackjack,
-  setShowBlackjack
+  setShowBlackjack,
+  showChatGame,
+  setShowChatGame
 }) => {
   const { isAuthenticated, user, login } = useTwitchAuth();
 
@@ -30,6 +34,9 @@ const Footer: React.FC<FooterProps> = ({
     if (showBlackjack) {
       setShowBlackjack(false);
     }
+    if (showChatGame) {
+      setShowChatGame(false);
+    }
   };
 
   const toggleInstructions = () => {
@@ -39,6 +46,9 @@ const Footer: React.FC<FooterProps> = ({
     }
     if (showBlackjack) {
       setShowBlackjack(false);
+    }
+    if (showChatGame) {
+      setShowChatGame(false);
     }
   };
 
@@ -51,6 +61,28 @@ const Footer: React.FC<FooterProps> = ({
     if (showChat) {
       setShowChat(false);
     }
+    if (showChatGame) {
+      setShowChatGame(false);
+    }
+  };
+
+  const toggleChatGame = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowChatGame(!showChatGame);
+    if (showInstructions) {
+      setShowInstructions(false);
+    }
+    if (showChat) {
+      setShowChat(false);
+    }
+    if (showBlackjack) {
+      setShowBlackjack(false);
+    }
+  };
+
+  const handleLoginClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    login();
   };
 
   return (
@@ -64,11 +96,26 @@ const Footer: React.FC<FooterProps> = ({
         <div className="flex flex-row space-x-12 sm:pace-x-16 md:space-x-24 text-sm sm:text-lg md:text-xl text-green-500">
           <div className="absolute inset-0 pointer-events-none"></div>
           <ul className="relative z-10">
-            <li>
-              <a href="#" className="hover:underline cursor-pointer block" onClick={toggleBlackjack}>
-                {showBlackjack ? "(Hide) " : ""}Play Blackjack
-              </a>
-            </li>
+            {isAuthenticated ? (
+              <>
+                <li>
+                  <a href="#" className="hover:underline cursor-pointer block" onClick={toggleBlackjack}>
+                    {showBlackjack ? "(Hide) " : ""}Play Blackjack
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:underline cursor-pointer block" onClick={toggleChatGame}>
+                    {showChatGame ? "(Hide) " : ""}Chat or Chatbot?
+                  </a>
+                </li>
+              </>
+            ) : (
+              <li>
+                <a href="#" className="hover:underline cursor-pointer block" onClick={handleLoginClick}>
+                  Log In with Twitch
+                </a>
+              </li>
+            )}
             <li>
               <a
                 href="#"
@@ -86,11 +133,6 @@ const Footer: React.FC<FooterProps> = ({
           </ul>
           <ul className="relative z-10">
             <li>
-              <a href="#" className="hover:underline cursor-pointer block" onClick={(e) => { e.preventDefault(); login(); }}>
-                {isAuthenticated ? user?.display_name : "Login with Twitch"}
-              </a>
-            </li>
-            <li>
               <a href="#" className="hover:underline cursor-pointer block">
                 aga
               </a>
@@ -98,6 +140,11 @@ const Footer: React.FC<FooterProps> = ({
             <li>
               <a href="#" className="hover:underline cursor-pointer block">
                 aga
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline cursor-pointer block">
+                {isAuthenticated && user ? user.display_name : "aga"}
               </a>
             </li>
           </ul>

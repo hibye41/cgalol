@@ -9,6 +9,7 @@ import Instructions from './components/Instructions'
 import TestChat from './components/TestChat'
 import Footer from './components/Footer'
 import Blackjack from './components/game/Blackjack'
+import ChatOrChatbot from './components/game/ChatOrChatbot'
 
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -17,6 +18,7 @@ function App() {
   const [showInstructions, setShowInstructions] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showBlackjack, setShowBlackjack] = useState(false);
+  const [showChatGame, setShowChatGame] = useState(false);
 
   return (
 		<div
@@ -36,6 +38,8 @@ function App() {
 					</div>
 				) : showBlackjack ? (
 					<Blackjack />
+				) : showChatGame ? (
+					<ChatOrChatbot />
 				) : (
 					<BaseContent />
 				)}
@@ -48,6 +52,8 @@ function App() {
 				setShowChat={setShowChat}
 				showBlackjack={showBlackjack}
 				setShowBlackjack={setShowBlackjack}
+				showChatGame={showChatGame}
+				setShowChatGame={setShowChatGame}
 			/>
 		</div>
 	);
