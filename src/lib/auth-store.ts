@@ -33,7 +33,7 @@ export const loginAtom = atom(
   () => {
     // Use the root URL as the redirect URI to ensure it works with our router
     const REDIRECT_URI = window.location.origin + '/';
-    const SCOPE = 'user:read:chat channel:read:chat';
+    const SCOPE = 'user:read:chat';
     
     const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${SCOPE}`;
     window.location.href = authUrl;
