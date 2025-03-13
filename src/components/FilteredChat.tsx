@@ -214,7 +214,7 @@ const FilteredChat: React.FC<FilteredChatProps> = ({
       await fetch("https://api.twitch.tv/helix/eventsub/subscriptions", {
 				method: "POST",
 				headers: {
-					"Client-ID": process.env.VITE_TWITCH_CLIENT_ID as string,
+					"Client-ID": import.meta.env.VITE_TWITCH_CLIENT_ID as string,
 					Authorization: `Bearer ${accessToken}`,
 					"Content-Type": "application/json",
 				},
@@ -236,7 +236,7 @@ const FilteredChat: React.FC<FilteredChatProps> = ({
       await fetch("https://api.twitch.tv/helix/eventsub/subscriptions", {
 				method: "POST",
 				headers: {
-					"Client-ID": process.env.VITE_TWITCH_CLIENT_ID as string,
+					"Client-ID": import.meta.env.VITE_TWITCH_CLIENT_ID as string,
 					Authorization: `Bearer ${accessToken}`,
 					"Content-Type": "application/json",
 				},

@@ -34,7 +34,7 @@ export const loginAtom = atom(
     const REDIRECT_URI = window.location.origin + '/';
     const SCOPE = 'user:read:chat';
     
-    const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${process.env.VITE_TWITCH_CLIENT_ID as string}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${SCOPE}`;
+    const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${import.meta.env.VITE_TWITCH_CLIENT_ID as string}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${SCOPE}`;
     window.location.href = authUrl;
   }
 );
@@ -73,7 +73,7 @@ export const checkAuthAtom = atom(
           // Fetch user data with the token
           const response = await fetch('https://api.twitch.tv/helix/users', {
             headers: {
-              'Client-ID': process.env.VITE_TWITCH_CLIENT_ID as string,
+              'Client-ID': import.meta.env.VITE_TWITCH_CLIENT_ID as string,
               'Authorization': `Bearer ${accessToken}`
             }
           });
